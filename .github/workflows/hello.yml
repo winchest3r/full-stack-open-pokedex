@@ -6,3 +6,7 @@ jobs:
     steps:
       - name: Say hello
         run: echo "Hello World!"
+      - name: Current date and time
+        run: date
+      - name: Directory content
+        run: ls -l
