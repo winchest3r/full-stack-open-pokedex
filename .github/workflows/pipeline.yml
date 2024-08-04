@@ -8,7 +8,7 @@ on:
     types: [opened, synchronize]
 
 jobs:
-  simple_deployment_pipeline:
+  main_pipeline:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v4
@@ -17,26 +17,39 @@ jobs:
           node-version: '20'
       - name: Install dependencies
         run: npm install
-      - name: lint
+      - name: Check lint
         run: npm run eslint
-      - name: build
+      - name: Build
         run: npm run build
-      - name: test
+      - name: Testing
         run: npm run test
-      - name: deploy to Render
-        if: ${{ github.event_name == 'push' }}
-        uses: sws2apps/render-deployment@v1.7.0
-        with:
-          serviceId: ${{ secrets.RENDER_SERVICE_ID }}
-          apiKey: ${{ secrets.RENDER_API_KEY }}
-          multipleDeployment: false
   tag_bump:
-    needs: simple_deployment_pipeline
+    needs: main_pipeline
     runs-on: ubuntu-20.04
     steps:
+      - uses: actions/checkout@v4
       - name: Github Tag Bump
         if: ${{ github.event_name == 'push' }}
         uses: anothrNick/github-tag-action@1.70.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
+  deploy_to_render:
+    needs: main_pipeline
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm install
+      - name: Build
+        run: npm run build
+      - name: Deploy to Render
+        if: ${{ github.event_name == 'push' }}
+        uses: sws2apps/render-deployment@v1.7.0
+        with:
+          serviceId: ${{ secrets.RENDER_SERVICE_ID }}
+          apiKey: ${{ secrets.RENDER_API_KEY }}
+          multipleDeployment: false
