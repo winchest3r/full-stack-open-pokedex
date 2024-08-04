@@ -2,8 +2,10 @@ name: Deployment pipeline
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+    types: [opened, synchronize]
 
 jobs:
   simple_deployment_pipeline:
@@ -22,6 +24,7 @@ jobs:
       - name: test
         run: npm run test
       - name: deploy to Render
+        if: ${{ github.event_name == 'push' }}
         uses: sws2apps/render-deployment@v1.7.0
         with:
           serviceId: ${{ secrets.RENDER_SERVICE_ID }}
