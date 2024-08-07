@@ -1,7 +1,7 @@
 name: Deployment pipeline
 
 env:
-  CONDITION: ${{ contains(toJSON(github.event.commits), '#skip') }}
+  CONDITION: ${{ contains(join(github.event.commits.*.message, ' '), '#skip') }}
 
 on:
   push:
@@ -48,7 +48,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Github Tag Bump
-        if: ${{ github.event_name == 'push' && env.CONDITION == false }}
+        if: ${{ github.event_name == 'push' && env.CONDITION == 'false' }}
         uses: anothrNick/github-tag-action@777684df761b882a3f4f70db16ac70d8cc78d0ea
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
