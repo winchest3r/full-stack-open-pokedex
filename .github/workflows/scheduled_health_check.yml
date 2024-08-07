@@ -1,0 +1,15 @@
+name: Scheduled health check
+
+on:
+  schedule:
+    - cron: '10 * * * *'
+
+jobs:
+  health_check:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: URL Health Check
+        uses: Jtalk/url-health-check-action@v4
+        with:
+          url: https://full-stack-open-pokedex-li01.onrender.com/
+          max-attempts: 3
